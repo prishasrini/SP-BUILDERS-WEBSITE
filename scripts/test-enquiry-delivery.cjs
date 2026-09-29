@@ -1,0 +1,24 @@
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const ts = require('typescript');
+const Module = require('node:module');
+const source = ts.transpileModule(fs.readFileSync('lib/enquiry-delivery.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText;
+const mod = new Module('delivery-test',module);mod._compile(source,'delivery-test.cjs');
+const {deliverEnquiry,deliveryConfigured}=mod.exports;
+const data={name:'Test visitor',email:'visitor@example.com',phone:'+919000000000',projectType:'Individual villa',message:'Please discuss my new home.\nThank you.',consent:true};
+Object.assign(process.env,{RESEND_API_KEY:'mock',ENQUIRY_FROM_EMAIL:'SP Builders <test@example.com>',TWILIO_ACCOUNT_SID:'ACtest',TWILIO_AUTH_TOKEN:'mock',TWILIO_WHATSAPP_FROM:'whatsapp:+15005550006',TWILIO_CONTENT_SID:'HXtest'});
+(async()=>{
+ assert.equal(deliveryConfigured(),true);
+ process.env.TWILIO_WHATSAPP_FROM='whatsapp:+919841145873';assert.equal(deliveryConfigured(),false);process.env.TWILIO_WHATSAPP_FROM='whatsapp:+15005550006';
+ const requests=[];
+ global.fetch=async(url,init)=>{requests.push({url,init});return Response.json(url.includes('resend')?{id:'email-id'}:{sid:'wa-id'});};
+ const success=await deliverEnquiry('test-reference',data);
+ assert.equal(success.email.status,'accepted');assert.equal(success.whatsapp.status,'accepted');
+ const email=JSON.parse(requests[0].init.body);assert.deepEqual(email.to,['spbuilders2003@gmail.com']);assert.equal(email.reply_to,data.email);assert.ok(email.text.includes(data.message));
+ const wa=requests[1].init.body;assert.equal(wa.get('To'),'whatsapp:+919841145873');assert.equal(JSON.parse(wa.get('ContentVariables'))['5'],'Please discuss my new home. Thank you.');
+ global.fetch=async url=>url.includes('resend')?Response.json({id:'ok'}):new Response('',{status:400});
+ const partial=await deliverEnquiry('partial',data);assert.equal(partial.email.status,'accepted');assert.equal(partial.whatsapp.status,'failed');
+ global.fetch=async()=>{throw new Error('timeout')};
+ const unknown=await deliverEnquiry('timeout',data);assert.equal(unknown.email.status,'unknown');assert.equal(unknown.whatsapp.status,'unknown');
+ console.log('PASS: destinations, template values, sender guard, dual acceptance, partial failure and ambiguous timeout. No network messages sent.');
+})().catch(error=>{console.error(error);process.exitCode=1});

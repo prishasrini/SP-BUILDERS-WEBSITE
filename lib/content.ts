@@ -1,0 +1,25 @@
+export const company = { phone: '+91 98411 45873', email: 'spbuilders2003@gmail.com', address: 'No. 5/1, 1st Cross Street, Poombugar Nagar, Kolathur, Chennai 600099' };
+export const projects = [
+ {slug:'fifth-street-apartments',name:'Fifth Street Apartments',location:'5th Street, Poombuhar Nagar',type:'Apartments',scope:'Residential apartments',configuration:'Please enquire for building specifications',image:'/images/fifth-street-apartments.png',sourceNote:'Architectural visualisation supplied by SP Builders.',description:'A residential apartment project on 5th Street, Poombuhar Nagar. The supplied visualisation features broad glass-fronted balconies, warm timber-toned cladding and a landscaped entrance.'},
+ {slug:'fourteenth-street-apartments',name:'Fourteenth Street Apartments',location:'Location to be confirmed',type:'Apartments',scope:'Contract work',configuration:'Stilt + 2 floors · 6 residences',image:'/images/project-6-clean.png',description:'An apartment construction project shown in the company brochure. Its location panel identifies 14th Street, Poombuhar Nagar, while the accompanying paragraph mentions Pallikaranai. Please contact SP Builders to confirm the address.'},
+ {slug:'sixth-street-duplex',name:'Sixth Street Duplex',location:'6th Street, Poombuhar Nagar',type:'Villas',scope:'Individual duplex villa',configuration:'Ground + 1 floor',image:'/images/project-11b-clean.png',description:'A duplex villa shown on the final project page of the company brochure, with a stone-clad vertical element, timber-toned facade and sheltered balconies.'},
+ {slug:'third-street-apartments',name:'Third Street Apartments',location:'3rd Street, Poombuhar Nagar',type:'Apartments',scope:'Joint venture',configuration:'Stilt + 2 floors · 4 residences',image:'/images/project-4-clean.png',description:'A residential apartment project in Kolathur, bringing four residences together above covered parking. The elevation pairs recessed balconies with a distinctly articulated facade.'},
+ {slug:'sri-anugrahas-anantaneni',name:'Sri Anugraha’s Anantaneni',location:'17th Street, Poombuhar Nagar',type:'Apartments',scope:'Joint venture',configuration:'Stilt + 2 floors · 6 residences',image:'/images/project-5-clean.png',description:'A six-residence apartment development in Kolathur. The architectural visualisation explores a strong vertical composition, sheltered balconies and covered car parking.'},
+ {slug:'vinayagapuram-villa',name:'Vinayagapuram Residence',location:'Vinayagapuram, Kolathur',type:'Villas',scope:'Individual villa',configuration:'Ground + 1 floor',image:'/images/project-7-clean.png',description:'An individual villa arranged over two levels. Projecting roof lines and balconies give the elevation its character, with covered parking at ground level.'},
+ {slug:'vetrivel-nagar-villa',name:'Vetrivel Nagar Residence',location:'Vetrivel Nagar Extension',type:'Villas',scope:'Individual villa',configuration:'Ground + 1 floor',image:'/images/project-8-clean.png',description:'A two-level residence with broad balconies and a layered facade. The company profile presents the project as an individual villa with covered car parking.'},
+ {slug:'first-main-road-residence',name:'First Main Road Residence',location:'1st Main Road, Poombuhar Nagar',type:'Villas',scope:'Individual villa',configuration:'Ground + 1 floor',image:'/images/project-9-clean.png',description:'An individual residence in Poombuhar Nagar. The facade combines generous openings, a sheltered balcony and contrasting surface treatments.'},
+ {slug:'poombuhar-duplex',name:'Poombuhar Duplex',location:'1st Main Road, Poombuhar Nagar',type:'Villas',scope:'Individual duplex villa',configuration:'Ground + 1 floor',image:'/images/project-10-clean.png',additionalImages:['/images/project-11a-clean.png'],description:'A duplex villa with a vertical entrance composition and an upper-level balcony. The supplied architectural visualisation expresses the home through clearly defined volumes.'},
+];
+export const services = [
+ ['Residential apartments','Apartment construction and joint-venture developments. Our portfolio includes four- and six-residence projects in Kolathur.'],
+ ['Individual villas','Individual homes and duplex villas, with layouts and finishing choices tailored to the customer’s requirements.'],
+ ['Construction & renovation','Construction contracting and renovation coordination. We also work with plans and drawings that customers bring to us.'],
+];
+export const approach = [
+ ['Tell us what you need','How will you use the space? What matters most to you? Understanding the customer is where we begin.'],
+ ['Share your plans','Bring your preferred drawings or talk through your requirements. Your priorities help shape the work.'],
+ ['Work through the layout','Consider the rooms, their purpose and the way they connect. Space planning should make daily life more comfortable.'],
+ ['Choose the finish','Explore the finishing options and customise the final design around your requirements.'],
+];
+
+
