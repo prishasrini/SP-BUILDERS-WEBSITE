@@ -5,3 +5,7 @@ node_modules/
 tmp/
 *.tsbuildinfo
 .vercel/
+
+# Local design exports and working files, not website source.
+output/
+work/
