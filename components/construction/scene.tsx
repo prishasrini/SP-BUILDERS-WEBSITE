@@ -21,6 +21,15 @@ export function ConstructionScene() {
   const [paused, setPaused] = useState(false);
   const [progress, setProgress] = useState(0);
 
+  const startFilm = () => {
+    const video = film.current;
+    if (!video) return;
+    // A direct tap allows loading on mobile browsers that ignore preload.
+    video.play().then(() => video.pause()).catch(() => {
+      // Keep the poster and start control available if playback is blocked.
+    });
+  };
+
   useEffect(() => {
     const query = matchMedia('(prefers-reduced-motion: reduce)');
     const sync = () => setReduced(query.matches);
@@ -49,18 +58,24 @@ export function ConstructionScene() {
       schedule();
     };
     const settled = () => {
+      if (video.readyState >= 2) setReady(true);
       if (duration()) setProgress(video.currentTime / duration());
       schedule();
     };
     const loaded = () => { setReady(true); measure(); };
+    video.addEventListener('loadedmetadata', measure);
     video.addEventListener('loadeddata', loaded);
+    video.addEventListener('canplay', loaded);
     video.addEventListener('seeked', settled);
     window.addEventListener('scroll', measure, {passive:true});
     window.addEventListener('resize', measure);
     if (video.readyState >= 2) loaded();
+    else if (video.readyState >= 1) measure();
     return () => {
       cancelAnimationFrame(frame);
       video.removeEventListener('loadeddata', loaded);
+      video.removeEventListener('loadedmetadata', measure);
+      video.removeEventListener('canplay', loaded);
       video.removeEventListener('seeked', settled);
       window.removeEventListener('scroll', measure);
       window.removeEventListener('resize', measure);
@@ -73,10 +88,14 @@ export function ConstructionScene() {
     <div className="scene">
       <div className="scene-media">
         {/* The user's exact proper_af footage, not a generated model. */}
-        {!reduced && <video ref={film} className={ready ? 'film-ready' : ''} style={{transform:`scale(${1.04 + .04 * Math.sin(progress * Math.PI)})`,transformOrigin:'50% 48%'}} src="/media/proper-af.mp4" poster="/media/proper-af-beginning.webp" preload="auto" muted playsInline disablePictureInPicture onError={() => setFailed(true)} aria-hidden="true" />}
-        {(reduced || failed) && <img className="scene-poster" src="/media/proper-af-completed.webp" alt="Completed building from the supplied construction film" />}
+        {(!ready || reduced || failed) && <img className="scene-poster" src="/media/proper-af-completed.webp" alt="Building from the supplied construction film" />}
+        {!reduced && !failed && <video ref={film} className={ready ? 'film-ready' : ''} style={{transform:`scale(${1.04 + .04 * Math.sin(progress * Math.PI)})`,transformOrigin:'50% 48%'}} poster="/media/proper-af-beginning.webp" preload="auto" muted playsInline disablePictureInPicture onError={() => setFailed(true)} aria-hidden="true">
+          <source src="/media/proper-af-mobile.mp4" type="video/mp4" media="(max-width: 850px)" />
+          <source src="/media/proper-af.mp4" type="video/mp4" />
+        </video>}
       </div>
       <div className="scene-shade" />
+      {!ready && !reduced && !failed && <button className="film-start" onClick={startFilm}><Play size={17} aria-hidden="true" />Start construction view</button>}
       <div className="scene-rail" aria-hidden="true"><span>GROUND</span><span>STRUCTURE</span><span>HOME</span><div className="rail-progress" style={{transform:`scaleY(${shown})`}} /></div>
       <div className="scene-copy scene-copy-3d"><span className="eyebrow">SP BUILDERS / {stages[stage].label}</span><div className="chapter-copy"><h1>{stages[stage].title}</h1><p>Better spaces. Brighter tomorrows.</p></div></div>
       <div className="scene-stage"><span>BUILD SEQUENCE</span><strong>{String(stage + 1).padStart(2,'0')}<small>/06</small></strong><span>{stages[stage].label}</span></div>
