@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowUpRight, Building2, Hammer, Home, Mail, MapPin, MessageCircle, Phone } from 'lucide-react';
+import { ArrowUpRight, Building2, Hammer, Handshake, Home, Mail, MapPin, MessageCircle, Phone } from 'lucide-react';
 import type { Project, SiteContent } from '@/lib/site-content';
 import { telLink, whatsappLink } from '@/lib/whatsapp';
 import { Rich } from '@/components/rich';
@@ -54,8 +54,7 @@ export function SelectedProjects({ content }: { content: SiteContent }) {
   </section>;
 }
 
-const serviceIcons = [Building2, Home, Hammer];
-const serviceAnchors = ['apartments', 'individual-homes', 'construction'];
+const serviceIcons = [Building2, Home, Handshake, Hammer];
 
 export function Capabilities({ content }: { content: SiteContent }) {
   return <section className="band band-stone" id="capabilities">
@@ -66,7 +65,7 @@ export function Capabilities({ content }: { content: SiteContent }) {
       </div>
       <div className="service-grid">{content.home.services.map((service, index) => {
         const Icon = serviceIcons[index % serviceIcons.length];
-        return <Link className="service-card" href={`/services#${serviceAnchors[index] ?? ''}`} key={service.title + index}>
+        return <Link className="service-card" href={`/services${content.servicesPage.items[index]?.id ? `#${content.servicesPage.items[index].id}` : ''}`} key={service.title + index}>
           <span className="service-icon"><Icon size={22} aria-hidden="true" /></span>
           <span className="spec">{String(index + 1).padStart(2, '0')}</span>
           <h3>{service.title}</h3>

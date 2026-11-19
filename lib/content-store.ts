@@ -48,7 +48,10 @@ async function readStored(): Promise<SiteContent | null> {
 }
 
 // Cached for every visitor; the admin save clears this cache so changes show straight away.
-export const getContent = unstable_cache(async (): Promise<SiteContent> => (await readStored()) ?? defaultContent, ['site-content'], { tags: ['content'] });
+// The deployment id is part of the cache key, so each new deployment starts fresh and picks up
+// changes to the built-in defaults; admin saves clear the cache through the 'content' tag.
+const cacheVersion = process.env.VERCEL_DEPLOYMENT_ID || process.env.VERCEL_GIT_COMMIT_SHA || process.env.NEXT_BUILD_STAMP || 'local';
+export const getContent = unstable_cache(async (): Promise<SiteContent> => (await readStored()) ?? defaultContent, ['site-content', cacheVersion], { tags: ['content'] });
 
 // Uncached read for the admin page.
 export async function getContentFresh(): Promise<SiteContent> {

@@ -13,6 +13,7 @@ export const projects: {slug:string;name:string;location:string;type:string;scop
 export const services: [string,string][] = [
  ['Residential apartments','Apartment construction and joint-venture developments. Our portfolio includes four- and six-residence projects in Kolathur.'],
  ['Individual villas','Individual homes and duplex villas, with layouts and finishing choices tailored to the customer’s requirements.'],
+ ['Joint ventures','Own a plot? We develop residential apartments on your land through a joint-venture agreement, with terms worked out for your specific site.'],
  ['Construction & renovation','Construction contracting and renovation coordination. We also work with plans and drawings that customers bring to us.'],
 ];
 export const approach: [string,string][] = [

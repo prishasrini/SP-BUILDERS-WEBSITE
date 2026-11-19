@@ -1,7 +1,7 @@
 'use client';
 
 import {useEffect, useRef, useState} from 'react';
-import {ArrowDown, ArrowUpRight, Pause, Play} from 'lucide-react';
+import {ArrowDown, ArrowUpRight} from 'lucide-react';
 
 // Scroll-driven construction hero. The film is played back as an image sequence drawn on a
 // canvas, which seeks instantly, eases between frames and loads on phones without a tap.
@@ -39,10 +39,7 @@ export function ConstructionScene() {
   const canvas = useRef<HTMLCanvasElement>(null);
   const [ready, setReady] = useState(false);
   const [reduced, setReduced] = useState(false);
-  const [paused, setPaused] = useState(false);
   const [progress, setProgress] = useState(0);
-  const pausedRef = useRef(false);
-  pausedRef.current = paused;
 
   useEffect(() => {
     const query = matchMedia('(prefers-reduced-motion: reduce)');
@@ -58,7 +55,8 @@ export function ConstructionScene() {
     const context = surface.getContext('2d');
     if (!context) return;
 
-    const set: FrameSet = MOBILE_FILL && matchMedia('(max-width: 650px) and (orientation: portrait)').matches ? 'p' : matchMedia('(max-width: 850px)').matches ? 'm' : 'd';
+    const devicePixels = surface.getBoundingClientRect().width * (window.devicePixelRatio || 1);
+    const set: FrameSet = MOBILE_FILL && matchMedia('(max-width: 650px) and (orientation: portrait)').matches ? 'p' : devicePixels <= 1400 ? 'm' : 'd';
     const frames: (HTMLImageElement | null)[] = new Array(FRAME_COUNT).fill(null);
     let cancelled = false;
     let current = 0;
@@ -96,7 +94,6 @@ export function ConstructionScene() {
     const schedule = () => { if (!frame) frame = requestAnimationFrame(tick); };
 
     const measure = () => {
-      if (pausedRef.current) return;
       const distance = Math.max(1, section.offsetHeight - window.innerHeight);
       const position = Math.max(0, Math.min(1, -section.getBoundingClientRect().top / distance));
       // Spend 84% of the scroll constructing, then hold the finished building.
@@ -147,14 +144,14 @@ export function ConstructionScene() {
       <div className="scene-media">
         {reduced && <img className="scene-poster" src="/media/proper-af-completed.webp" alt="Building from the SP Builders construction film" />}
         {/* First frame doubles as the poster: small, high priority, and already cached when the canvas starts. */}
-        {!reduced && !ready && <picture>{MOBILE_FILL && <source media="(max-width: 650px) and (orientation: portrait)" srcSet={frameUrl('p', 0)} />}<source media="(max-width: 850px)" srcSet={frameUrl('m', 0)} /><img className="scene-poster" src={frameUrl('d', 0)} alt="Building from the SP Builders construction film" fetchPriority="high" /></picture>}
+        {!reduced && !ready && <picture>{MOBILE_FILL && <source media="(max-width: 650px) and (orientation: portrait)" srcSet={frameUrl('p', 0)} />}<source media="(max-width: 1400px)" srcSet={frameUrl('m', 0)} /><img className="scene-poster" src={frameUrl('d', 0)} alt="Building from the SP Builders construction film" fetchPriority="high" /></picture>}
         {!reduced && <canvas ref={canvas} className={`scene-canvas ${ready ? 'film-ready' : ''}`} style={{transform:`scale(${1.04 + .04 * Math.sin(progress * Math.PI)})`,transformOrigin:'50% 48%'}} aria-hidden="true" />}
       </div>
       <div className="scene-shade" />
       <div className="scene-rail" aria-hidden="true"><span>GROUND</span><span>STRUCTURE</span><span>HOME</span><div className="rail-progress" style={{transform:`scaleY(${shown})`}} /></div>
       <div className="scene-copy scene-copy-3d"><span className="eyebrow">SP BUILDERS / {stages[stage].label}</span><div className="chapter-copy"><h1>{stages[stage].title}</h1><p>Better spaces. Brighter tomorrows.</p></div></div>
       <div className="scene-stage"><span>BUILD SEQUENCE</span><strong>{String(stage + 1).padStart(2,'0')}<small>/06</small></strong><span>{stages[stage].label}</span></div>
-      <div className="scene-bottom"><a href="#story" className="scene-skip">Explore SP Builders <ArrowUpRight size={15}/></a><span className="film-scroll-label">SCROLL TO CONSTRUCT <ArrowDown size={14}/></span><div className="scene-status"><span>{Math.round(shown * 100)}%</span>{!reduced && <button className="pause-film" aria-label={paused ? 'Resume scroll animation' : 'Pause scroll animation'} onClick={() => setPaused(!paused)}>{paused ? <Play size={15}/> : <Pause size={15}/>}</button>}</div></div>
+      <div className="scene-bottom"><a href="#story" className="scene-skip">Explore SP Builders <ArrowUpRight size={15}/></a><span className="film-scroll-label">SCROLL TO CONSTRUCT <ArrowDown size={14}/></span><div className="scene-status"><span>{Math.round(shown * 100)}%</span></div></div>
     </div>
   </section>;
 }

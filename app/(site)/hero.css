@@ -206,3 +206,13 @@
  .construction-frames.mobile-fill .scene-media .scene-canvas,.construction-frames.mobile-fill .scene-poster{object-fit:cover;object-position:center 55%;top:140px;bottom:61px;height:calc(100% - 201px)}
  .construction-frames.mobile-fill .scene-shade{background:linear-gradient(180deg,#11171a 0%,#11171a 130px,transparent 210px,transparent 72%,#11171a99 100%)}
 }
+/* Phones: drop the side labels (too narrow to read) and keep a slim progress line instead,
+   so the film and headline use the full width. */
+@media(max-width:650px){
+ .construction-frames .scene-rail{width:4px;border-right:0;background:#ffffff1a}
+ .construction-frames .scene-rail>span{display:none}
+ .construction-frames .scene-bottom{left:4px}
+ .construction-frames .scene-copy{left:22px;right:22px}
+ .construction-frames .scene-stage{left:22px}
+ .construction-frames .scene-media{left:0}
+}
