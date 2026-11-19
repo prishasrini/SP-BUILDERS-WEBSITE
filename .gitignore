@@ -9,3 +9,7 @@ tmp/
 # Local design exports and working files, not website source.
 output/
 work/
+
+# Local admin testing (LOCAL_CONTENT=1)
+.data/
+public/uploads/

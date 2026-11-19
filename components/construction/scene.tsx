@@ -3,6 +3,17 @@
 import {useEffect, useRef, useState} from 'react';
 import {ArrowDown, ArrowUpRight, Pause, Play} from 'lucide-react';
 
+// Scroll-driven construction hero. The film is played back as an image sequence drawn on a
+// canvas, which seeks instantly, eases between frames and loads on phones without a tap.
+// The original video version is kept in scene-video.tsx (NEXT_PUBLIC_HERO_MODE=video).
+
+const FRAME_COUNT = 80;
+// Phones get a portrait crop of the film that fills the screen. Set to false to show the
+// full-width film letterboxed in the middle, as in the original design.
+const MOBILE_FILL = true;
+type FrameSet = 'd' | 'm' | 'p';
+const frameUrl = (set: FrameSet, index: number) => `/media/hero/${set}/${String(index + 1).padStart(3, '0')}.webp`;
+
 const stages = [
   {at:0, label:'The beginning', title:'A vision takes shape.'},
   {at:.18, label:'Groundwork', title:'From the ground, up.'},
@@ -12,23 +23,26 @@ const stages = [
   {at:.94, label:'Complete', title:'Made for living.'},
 ];
 
+// Load order: first frame, then progressively finer passes so any scroll position has a nearby frame.
+function loadOrder(count: number) {
+  const order: number[] = [0];
+  const seen = new Set(order);
+  for (const stride of [16, 8, 4, 2, 1]) {
+    for (let i = 0; i < count; i += stride) if (!seen.has(i)) { seen.add(i); order.push(i); }
+  }
+  if (!seen.has(count - 1)) order.push(count - 1);
+  return order;
+}
+
 export function ConstructionScene() {
   const root = useRef<HTMLElement>(null);
-  const film = useRef<HTMLVideoElement>(null);
+  const canvas = useRef<HTMLCanvasElement>(null);
   const [ready, setReady] = useState(false);
-  const [failed, setFailed] = useState(false);
   const [reduced, setReduced] = useState(false);
   const [paused, setPaused] = useState(false);
   const [progress, setProgress] = useState(0);
-
-  const startFilm = () => {
-    const video = film.current;
-    if (!video) return;
-    // A direct tap allows loading on mobile browsers that ignore preload.
-    video.play().then(() => video.pause()).catch(() => {
-      // Keep the poster and start control available if playback is blocked.
-    });
-  };
+  const pausedRef = useRef(false);
+  pausedRef.current = paused;
 
   useEffect(() => {
     const query = matchMedia('(prefers-reduced-motion: reduce)');
@@ -38,69 +52,109 @@ export function ConstructionScene() {
   }, []);
 
   useEffect(() => {
-    const video = film.current;
     const section = root.current;
-    if (!video || !section || reduced || failed) return;
-    let frame = 0;
+    const surface = canvas.current;
+    if (!section || !surface || reduced) return;
+    const context = surface.getContext('2d');
+    if (!context) return;
+
+    const set: FrameSet = MOBILE_FILL && matchMedia('(max-width: 650px) and (orientation: portrait)').matches ? 'p' : matchMedia('(max-width: 850px)').matches ? 'm' : 'd';
+    const frames: (HTMLImageElement | null)[] = new Array(FRAME_COUNT).fill(null);
+    let cancelled = false;
+    let current = 0;
     let target = 0;
-    const duration = () => Math.max(0, (video.duration || 0) - 1 / 24);
-    const seek = () => {
-      frame = 0;
-      if (paused || video.seeking || !Number.isFinite(video.duration) || !duration()) return;
-      if (Math.abs(video.currentTime - target) > 1 / 48) video.currentTime = target;
+    let drawn = -1;
+    let frame = 0;
+    let lastReported = -1;
+
+    const nearestLoaded = (index: number) => {
+      for (let offset = 0; offset < FRAME_COUNT; offset++) {
+        if (frames[index - offset]) return index - offset;
+        if (frames[index + offset]) return index + offset;
+      }
+      return -1;
     };
-    const schedule = () => { if (!frame) frame = requestAnimationFrame(seek); };
+
+    const draw = (index: number) => {
+      const found = nearestLoaded(index);
+      if (found < 0 || found === drawn) return;
+      const image = frames[found]!;
+      if (surface.width !== image.naturalWidth) { surface.width = image.naturalWidth; surface.height = image.naturalHeight; }
+      context.drawImage(image, 0, 0);
+      drawn = found;
+    };
+
+    const tick = () => {
+      frame = 0;
+      const difference = target - current;
+      current = Math.abs(difference) < .002 ? target : current + difference * .16;
+      draw(Math.round(current * (FRAME_COUNT - 1)));
+      const rounded = Math.round(current * 1000) / 1000;
+      if (rounded !== lastReported) { lastReported = rounded; setProgress(rounded); }
+      if (current !== target) frame = requestAnimationFrame(tick);
+    };
+    const schedule = () => { if (!frame) frame = requestAnimationFrame(tick); };
+
     const measure = () => {
+      if (pausedRef.current) return;
       const distance = Math.max(1, section.offsetHeight - window.innerHeight);
       const position = Math.max(0, Math.min(1, -section.getBoundingClientRect().top / distance));
-      // Spend 84% of the longer scene constructing, then hold the finished frame.
-      target = Math.min(1, position / .84) * duration();
+      // Spend 84% of the scroll constructing, then hold the finished building.
+      target = Math.min(1, position / .84);
       schedule();
     };
-    const settled = () => {
-      if (video.readyState >= 2) setReady(true);
-      if (duration()) setProgress(video.currentTime / duration());
-      schedule();
+
+    // Fetch frames a few at a time in priority order.
+    const queue = loadOrder(FRAME_COUNT);
+    const loadNext = () => {
+      const index = queue.shift();
+      if (index === undefined || cancelled) return;
+      const image = new Image();
+      image.decoding = 'async';
+      image.onload = () => {
+        if (cancelled) return;
+        frames[index] = image;
+        if (index === 0) setReady(true);
+        drawn = -1;
+        draw(Math.round(current * (FRAME_COUNT - 1)));
+        loadNext();
+      };
+      image.onerror = () => loadNext();
+      image.src = frameUrl(set, index);
     };
-    const loaded = () => { setReady(true); measure(); };
-    video.addEventListener('loadedmetadata', measure);
-    video.addEventListener('loadeddata', loaded);
-    video.addEventListener('canplay', loaded);
-    video.addEventListener('seeked', settled);
+    // Fetch the first frame alone so it arrives quickly on slow connections, then widen.
+    let started = false;
+    const widen = () => { if (started) return; started = true; for (let i = 0; i < 4; i++) loadNext(); };
+    loadNext();
+    const firstReady = setInterval(() => { if (frames[0] || cancelled) { clearInterval(firstReady); widen(); } }, 50);
+
     window.addEventListener('scroll', measure, {passive:true});
     window.addEventListener('resize', measure);
-    if (video.readyState >= 2) loaded();
-    else if (video.readyState >= 1) measure();
+    measure();
     return () => {
+      cancelled = true;
+      clearInterval(firstReady);
       cancelAnimationFrame(frame);
-      video.removeEventListener('loadeddata', loaded);
-      video.removeEventListener('loadedmetadata', measure);
-      video.removeEventListener('canplay', loaded);
-      video.removeEventListener('seeked', settled);
       window.removeEventListener('scroll', measure);
       window.removeEventListener('resize', measure);
     };
-  }, [paused, reduced, failed]);
+  }, [reduced]);
 
   const shown = reduced ? 1 : progress;
   const stage = stages.reduce((current, item, index) => shown >= item.at ? index : current, 0);
-  return <section ref={root} className={`construction construction-film ${reduced || failed ? 'motion-reduced' : ''}`} aria-label="Scroll through the construction film">
+  return <section ref={root} className={`construction construction-film construction-frames ${MOBILE_FILL ? 'mobile-fill' : ''} ${reduced ? 'motion-reduced' : ''}`} aria-label="Scroll through the construction film">
     <div className="scene">
       <div className="scene-media">
-        {/* The user's exact proper_af footage, not a generated model. */}
-        {(!ready || reduced || failed) && <img className="scene-poster" src="/media/proper-af-completed.webp" alt="Building from the supplied construction film" />}
-        {!reduced && !failed && <video ref={film} className={ready ? 'film-ready' : ''} style={{transform:`scale(${1.04 + .04 * Math.sin(progress * Math.PI)})`,transformOrigin:'50% 48%'}} poster="/media/proper-af-beginning.webp" preload="auto" muted playsInline disablePictureInPicture onError={() => setFailed(true)} aria-hidden="true">
-          <source src="/media/proper-af-mobile.mp4" type="video/mp4" media="(max-width: 850px)" />
-          <source src="/media/proper-af.mp4" type="video/mp4" />
-        </video>}
+        {reduced && <img className="scene-poster" src="/media/proper-af-completed.webp" alt="Building from the SP Builders construction film" />}
+        {/* First frame doubles as the poster: small, high priority, and already cached when the canvas starts. */}
+        {!reduced && !ready && <picture>{MOBILE_FILL && <source media="(max-width: 650px) and (orientation: portrait)" srcSet={frameUrl('p', 0)} />}<source media="(max-width: 850px)" srcSet={frameUrl('m', 0)} /><img className="scene-poster" src={frameUrl('d', 0)} alt="Building from the SP Builders construction film" fetchPriority="high" /></picture>}
+        {!reduced && <canvas ref={canvas} className={`scene-canvas ${ready ? 'film-ready' : ''}`} style={{transform:`scale(${1.04 + .04 * Math.sin(progress * Math.PI)})`,transformOrigin:'50% 48%'}} aria-hidden="true" />}
       </div>
       <div className="scene-shade" />
-      {!ready && !reduced && !failed && <button className="film-start" onClick={startFilm}><Play size={17} aria-hidden="true" />Start construction view</button>}
       <div className="scene-rail" aria-hidden="true"><span>GROUND</span><span>STRUCTURE</span><span>HOME</span><div className="rail-progress" style={{transform:`scaleY(${shown})`}} /></div>
       <div className="scene-copy scene-copy-3d"><span className="eyebrow">SP BUILDERS / {stages[stage].label}</span><div className="chapter-copy"><h1>{stages[stage].title}</h1><p>Better spaces. Brighter tomorrows.</p></div></div>
       <div className="scene-stage"><span>BUILD SEQUENCE</span><strong>{String(stage + 1).padStart(2,'0')}<small>/06</small></strong><span>{stages[stage].label}</span></div>
-      <div className="scene-bottom"><a href="#story" className="scene-skip">Explore SP Builders <ArrowUpRight size={15}/></a><span className="film-scroll-label">SCROLL TO CONSTRUCT <ArrowDown size={14}/></span><div className="scene-status"><span>{Math.round(shown * 100)}%</span>{!reduced && !failed && <button className="pause-film" aria-label={paused ? 'Resume scroll animation' : 'Pause scroll animation'} onClick={() => setPaused(!paused)}>{paused ? <Play size={15}/> : <Pause size={15}/>}</button>}</div></div>
-      {failed && <p className="film-note">Film unavailable. Continue to explore SP Builders.</p>}
+      <div className="scene-bottom"><a href="#story" className="scene-skip">Explore SP Builders <ArrowUpRight size={15}/></a><span className="film-scroll-label">SCROLL TO CONSTRUCT <ArrowDown size={14}/></span><div className="scene-status"><span>{Math.round(shown * 100)}%</span>{!reduced && <button className="pause-film" aria-label={paused ? 'Resume scroll animation' : 'Pause scroll animation'} onClick={() => setPaused(!paused)}>{paused ? <Play size={15}/> : <Pause size={15}/>}</button>}</div></div>
     </div>
   </section>;
 }
