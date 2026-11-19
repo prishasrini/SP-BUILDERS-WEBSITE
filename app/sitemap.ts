@@ -4,5 +4,5 @@ import {siteUrl} from '@/lib/metadata';
 export default async function sitemap():Promise<MetadataRoute.Sitemap>{
   if(!siteUrl)return [];
   const {projects}=await getContent();
-  return ['','/about','/projects','/services','/process','/contact','/privacy',...projects.map(p=>`/projects/${p.slug}`)].map(path=>({url:siteUrl+path}));
+  return ['','/about','/projects','/services','/joint-ventures','/process','/contact','/privacy',...projects.map(p=>`/projects/${p.slug}`)].map(path=>({url:siteUrl+path}));
 }

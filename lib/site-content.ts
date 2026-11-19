@@ -16,6 +16,7 @@ export type Project = {
   description: string;
   featured: boolean;
   status: string;
+  highlights: string[];
 };
 
 export type TitleText = { title: string; text: string };
@@ -30,6 +31,8 @@ export type SiteContent = {
     locationsLabel: string; locationsHeading: string; locationsIntro: string; locations: { name: string; text: string; link: string }[];
     processLabel: string; processHeading: string; processIntro: string;
     faqLabel: string; faqHeading: string;
+    spotlightLabel: string; spotlightButton: string;
+    whyLabel: string; whyHeading: string; whyIntro: string; why: TitleText[];
   };
   approach: TitleText[];
   faq: { question: string; answer: string }[];
@@ -39,6 +42,7 @@ export type SiteContent = {
     heading: string; intro: string; image: string;
     peopleLabel: string; peopleHeading: string; founderHeading: string; founderText: string; founderText2: string;
     values: TitleText[];
+    founderName: string; founderRole: string; founderBio: string; philosophyLabel: string; philosophy: string; motto: string;
   };
   servicesPage: {
     heading: string; intro: string;
@@ -49,6 +53,13 @@ export type SiteContent = {
     guideLabel: string; guideHeading: string; guideIntro: string; guide: TitleText[];
   };
   contactPage: { heading: string; intro: string; whatsappHeading: string; whatsappText: string };
+  jvPage: {
+    heading: string; intro: string; ctaLabel: string; message: string;
+    stepsLabel: string; stepsHeading: string; steps: TitleText[];
+    whyLabel: string; whyHeading: string; why: TitleText[];
+    bringLabel: string; bringHeading: string; bring: string[];
+    faqHeading: string; faq: { question: string; answer: string }[];
+  };
   projects: Project[];
 };
 
@@ -72,7 +83,7 @@ export const defaultContent: SiteContent = {
       { label: 'Founded', value: '2000' },
       { label: 'Years building', value: '25+' },
       { label: 'Featured projects', value: String(defaultProjects.length) },
-      { label: 'Led by', value: 'A civil engineer' },
+      { label: 'Savings at contractor rates', value: 'Up to 10%' },
     ],
     projectsLabel: 'Selected work',
     projectsHeading: 'Look *closer.*',
@@ -92,6 +103,19 @@ export const defaultContent: SiteContent = {
     processIntro: 'Arrive with a set of drawings or just an idea of what you need. The conversation starts with you.',
     faqLabel: 'Useful to know',
     faqHeading: 'Before you *get in touch.*',
+    spotlightLabel: 'Now selling in Kolathur',
+    spotlightButton: 'Book a site visit',
+    whyLabel: 'Why SP Builders',
+    whyHeading: 'Built with care. *Priced fairly.*',
+    whyIntro: 'What families and landowners get when they build with us.',
+    why: [
+      { title: 'Up to 10% savings', text: 'You pay contractor rates instead of retail, which can save up to 10% on the cost of building.' },
+      { title: 'High quality standards', text: 'Work carried out by verified contractors, with an engineer’s attention to structure and finish.' },
+      { title: 'End-to-end handling', text: 'We stay involved through every phase of construction, so you have one team to talk to.' },
+      { title: 'On-time schedules', text: 'Planning and site management focused on handing over your home when promised.' },
+      { title: 'Vaastu followed', text: 'Vaastu Shastra is followed in the planning of each home and apartment.' },
+      { title: 'Your choice of finishes', text: 'A wide range of materials to choose from, with flexible and easy payment terms.' },
+    ],
   },
   approach: approach.map(([title, text]) => ({ title, text })),
   faq: [
@@ -126,6 +150,12 @@ export const defaultContent: SiteContent = {
       { title: 'Engineered properly', text: 'An engineer-led company, with attention to structure, room relationships and the use of available space.' },
       { title: 'Your finish, your choice', text: 'Explore the finishing options and customise the final design around your requirements.' },
     ],
+    founderName: 'V. Srinivasan',
+    founderRole: 'Founder · Civil Engineer',
+    founderBio: 'A professionally qualified civil engineer, V. Srinivasan started SP Builders in 2000 and has led the company since, building residential apartments, individual villas and joint-venture developments in North Chennai.',
+    philosophyLabel: 'Our philosophy',
+    philosophy: 'We believe the best relationship with a client is built on trust. Only when we truly understand every customer’s needs can we create a home where personalities and priorities align.',
+    motto: 'Make it simple, but *significant.*',
   },
   servicesPage: {
     heading: 'Construction. *Development.*',
@@ -133,7 +163,7 @@ export const defaultContent: SiteContent = {
     items: [
       { id: 'apartments', title: 'Apartment developments', text: 'Our residential development portfolio includes four- and six-residence apartment projects in Kolathur, arranged over stilt parking and two floors. Each project page shows its location, configuration and visualisation.', prompt: 'Looking for an apartment?', detail: 'Tell us which project interests you and ask for its current availability, specifications and viewing options.', link: '/projects/third-street-apartments', linkText: 'See an apartment project', message: 'Hi SP Builders, I am looking for an apartment. Could you share what is available?' },
       { id: 'individual-homes', title: 'Individual homes and duplex villas', text: 'An individual home starts with the requirements of the people who will live in it. We work with your preferences, space planning and finishing choices. The portfolio includes ground-plus-one residences and duplex villas.', prompt: 'Planning your own home?', detail: 'Share the site location, any drawings you already have, and the rooms or features that matter to your household.', link: '/projects/poombuhar-duplex', linkText: 'See a duplex villa', message: 'Hi SP Builders, I am planning to build my own home and would like to discuss it.' },
-      { id: 'joint-ventures', title: 'Joint-venture development', text: 'Joint-venture development is part of our Poombuhar Nagar apartment portfolio. If you own a site and want to explore a residential development, the first step is a conversation about the property and your objectives.', prompt: 'Have land to discuss?', detail: 'Start with the location and available site information. The suitability, scope and terms of a proposal depend on the specific property.', link: '/contact', linkText: 'Discuss your site', message: 'Hi SP Builders, I own a site and would like to discuss a joint venture.' },
+      { id: 'joint-ventures', title: 'Joint-venture development', text: 'Joint-venture development is part of our Poombuhar Nagar apartment portfolio. If you own a site and want to explore a residential development, the first step is a conversation about the property and your objectives.', prompt: 'Have land to discuss?', detail: 'Start with the location and available site information. The suitability, scope and terms of a proposal depend on the specific property.', link: '/joint-ventures', linkText: 'How joint ventures work', message: 'Hi SP Builders, I own a site and would like to discuss a joint venture.' },
       { id: 'construction', title: 'Construction and renovation', text: 'SP Builders also undertakes construction contracting and renovation coordination. Approach us with your preferred plans or describe the changes you want to make to an existing space.', prompt: 'Already have a plan?', detail: 'Explain the work required, the current condition of the property and your priorities, and we will discuss the scope.', link: '/contact', linkText: 'Discuss the scope', message: 'Hi SP Builders, I have a construction or renovation requirement to discuss.' },
     ],
   },
@@ -156,10 +186,43 @@ export const defaultContent: SiteContent = {
     whatsappHeading: 'Chat with us on WhatsApp',
     whatsappText: 'The quickest way to reach us. Share your ideas, plans or questions and we’ll get back to you.',
   },
+  jvPage: {
+    heading: 'Own a plot? *Build with us.*',
+    intro: 'Partner with SP Builders through a joint venture and turn your land into a residential apartment building, with an experienced Kolathur builder handling the work.',
+    ctaLabel: 'Discuss my plot',
+    message: 'Hi SP Builders, I own a plot and would like to discuss a joint venture.',
+    stepsLabel: 'How it works',
+    stepsHeading: 'From your plot *to new homes.*',
+    steps: [
+      { title: 'Share your plot details', text: 'Tell us the location, plot size and road width, and what documents you have. A WhatsApp message is enough to start.' },
+      { title: 'Site visit and study', text: 'We visit the site and study what can be built there: the number of floors and homes, parking and approvals.' },
+      { title: 'Proposal and agreement', text: 'We explain the proposal and discuss the terms openly. Every agreement is specific to your site and your goals.' },
+      { title: 'Approvals and construction', text: 'We coordinate the approvals and build, keeping you updated as the building rises.' },
+      { title: 'Handover', text: 'The finished apartments are completed and handed over as agreed.' },
+    ],
+    whyLabel: 'Why partner with us',
+    whyHeading: 'A builder you can *sit across from.*',
+    why: [
+      { title: 'Proven joint ventures', text: 'Third Street Apartments and Sri Anugraha’s Anantaneni in Poombuhar Nagar were both built as joint ventures.' },
+      { title: 'Engineer-led', text: 'Founded and led by a civil engineer, with attention to structure, layout and the use of available space.' },
+      { title: 'Local and accessible', text: 'Based in Kolathur since 2000. You can meet us, visit our sites and see the work for yourself.' },
+      { title: 'Clear terms', text: 'Every proposal is discussed openly and agreed clearly before any work begins.' },
+    ],
+    bringLabel: 'Helpful to have',
+    bringHeading: 'What to bring to *the first meeting.*',
+    bring: ['Plot location and size', 'Road width in front of the plot', 'Title deed and patta', 'Encumbrance certificate (EC)', 'Survey sketch or FMB, if available', 'Any existing building plans'],
+    faqHeading: 'Joint venture *questions.*',
+    faq: [
+      { question: 'What kind of plot is suitable?', answer: 'It depends on the plot size, road width, location and approvals. Share the details and we will tell you honestly what can be built.' },
+      { question: 'How is the share decided?', answer: 'The share of homes or built-up area is worked out for each site, based on the land and the building it allows. We discuss it openly before anything is agreed.' },
+      { question: 'Do I need all the documents before contacting you?', answer: 'No. Start with the location and plot size. We will tell you which documents are needed as we go.' },
+      { question: 'Can I see your earlier joint-venture projects?', answer: 'Yes. Third Street Apartments and Sri Anugraha’s Anantaneni in Poombuhar Nagar are joint-venture developments, and you can arrange a visit with us.' },
+    ],
+  },
   projects: defaultProjects.map(p => ({
     slug: p.slug, name: p.name, location: p.location, type: p.type === 'Villas' ? 'Villas' : 'Apartments', scope: p.scope,
     configuration: p.configuration, image: p.image, additionalImages: p.additionalImages ?? [], description: p.description,
-    featured: ['jn-enclave', 'third-street-apartments', 'vetrivel-nagar-villa'].includes(p.slug), status: p.status ?? '',
+    featured: ['jn-enclave', 'third-street-apartments', 'vetrivel-nagar-villa'].includes(p.slug), status: p.status ?? '', highlights: p.highlights ?? [],
   })),
 };
 

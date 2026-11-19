@@ -1,9 +1,12 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowUpRight, Building2, Hammer, Handshake, Home, Mail, MapPin, MessageCircle, Phone } from 'lucide-react';
+import { ArrowUpRight, BadgeCheck, Building2, CalendarCheck, Check, Compass, Hammer, Handshake, Home, Layers, Mail, MapPin, MessageCircle, Palette, Phone, PiggyBank } from 'lucide-react';
 import type { Project, SiteContent } from '@/lib/site-content';
 import { telLink, whatsappLink } from '@/lib/whatsapp';
 import { Rich } from '@/components/rich';
+
+// A status like "Now selling · Under construction" shows as one badge per part.
+export const statusList = (status: string) => status.split(/\s*[·,|]\s*/).map(item => item.trim()).filter(Boolean);
 
 export function Story({ content }: { content: SiteContent }) {
   const home = content.home;
@@ -30,7 +33,7 @@ export function ProjectCard({ project, index }: { project: Project; index?: numb
     <div className="project-card-image">
       {project.image && <Image src={project.image} alt={`${project.name}, architectural visualisation`} fill sizes="(max-width: 700px) 92vw, (max-width: 1100px) 46vw, 30vw" />}
       {index !== undefined && <span className="project-card-index">{String(index + 1).padStart(2, '0')}</span>}
-      {project.status && <span className="status-badge">{project.status}</span>}
+      {project.status && <span className="status-badges">{statusList(project.status).map((item, i) => <span className={`status-badge${i ? ' status-badge-alt' : ''}`} key={item}>{item}</span>)}</span>}
     </div>
     <div className="project-card-body">
       <span className="spec">{project.type} · {project.scope}</span>
@@ -66,7 +69,7 @@ export function Capabilities({ content }: { content: SiteContent }) {
       </div>
       <div className="service-grid">{content.home.services.map((service, index) => {
         const Icon = serviceIcons[index % serviceIcons.length];
-        return <Link className="service-card" href={`/services${content.servicesPage.items[index]?.id ? `#${content.servicesPage.items[index].id}` : ''}`} key={service.title + index}>
+        return <Link className="service-card" href={content.servicesPage.items[index]?.id === 'joint-ventures' ? '/joint-ventures' : `/services${content.servicesPage.items[index]?.id ? `#${content.servicesPage.items[index].id}` : ''}`} key={service.title + index}>
           <span className="service-icon"><Icon size={22} aria-hidden="true" /></span>
           <span className="spec">{String(index + 1).padStart(2, '0')}</span>
           <h3>{service.title}</h3>
@@ -108,5 +111,48 @@ export function ContactCTA({ content, message }: { content: SiteContent; message
         <Link href="/contact"><MapPin size={16} aria-hidden="true" />Kolathur, Chennai</Link>
       </div>
     </div>
+  </section>;
+}
+
+// Home page band for the project currently on sale (the first project whose status says "selling").
+export function Spotlight({ content }: { content: SiteContent }) {
+  const project = content.projects.find(p => /sell|sale|book/i.test(p.status));
+  if (!project) return null;
+  const message = `Hi SP Builders, I'm interested in ${project.name}. I'd like to book a site visit.`;
+  return <section className="spotlight" aria-labelledby="spotlight-title">
+    <div className="spotlight-inner">
+      <Link className="spotlight-image" href={`/projects/${project.slug}`} tabIndex={-1} aria-hidden="true">
+        {project.image && <Image src={project.image} alt="" fill sizes="(max-width: 900px) 92vw, 50vw" />}
+      </Link>
+      <div className="spotlight-copy">
+        <span className="label label-light">{content.home.spotlightLabel}</span>
+        <div className="status-badges status-badges-inline">{statusList(project.status).map((item, i) => <span className={`status-badge${i ? ' status-badge-alt' : ''}`} key={item}>{item}</span>)}</div>
+        <h2 id="spotlight-title">{project.name}</h2>
+        <p className="spotlight-meta">{project.scope}{project.location ? ` · ${project.location}` : ''}</p>
+        {project.configuration && <p className="spotlight-sizes">{project.configuration}</p>}
+        {project.highlights.length > 0 && <ul className="highlights">{project.highlights.map(item => <li key={item}><Check size={16} aria-hidden="true" />{item}</li>)}</ul>}
+        <div className="cta-actions">
+          <a className="button" href={whatsappLink(message, content.company.whatsapp)} target="_blank" rel="noopener noreferrer"><MessageCircle size={19} aria-hidden="true" />{content.home.spotlightButton}</a>
+          <Link className="button button-ghost" href={`/projects/${project.slug}`}>View project <ArrowUpRight size={18} aria-hidden="true" /></Link>
+        </div>
+      </div>
+    </div>
+  </section>;
+}
+
+const whyIcons = [PiggyBank, BadgeCheck, Layers, CalendarCheck, Compass, Palette];
+
+export function WhyUs({ content }: { content: SiteContent }) {
+  const home = content.home;
+  if (!home.why.length) return null;
+  return <section className="section why" aria-labelledby="why-title">
+    <div className="section-head">
+      <div><span className="label">{home.whyLabel}</span><h2 id="why-title"><Rich text={home.whyHeading} /></h2></div>
+      {home.whyIntro && <p className="section-intro">{home.whyIntro}</p>}
+    </div>
+    <ul className="why-grid">{home.why.map((item, index) => {
+      const Icon = whyIcons[index % whyIcons.length];
+      return <li key={item.title + index}><span className="why-icon"><Icon size={22} aria-hidden="true" /></span><h3>{item.title}</h3><p>{item.text}</p></li>;
+    })}</ul>
   </section>;
 }

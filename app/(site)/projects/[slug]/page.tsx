@@ -1,8 +1,8 @@
 import {notFound} from 'next/navigation';
 import Link from 'next/link';
-import {ArrowLeft, ArrowUpRight, MessageCircle, Phone} from 'lucide-react';
+import {ArrowLeft, ArrowUpRight, Check, MessageCircle, Phone} from 'lucide-react';
 import {Gallery} from '@/components/gallery';
-import {ContactCTA} from '@/components/sections';
+import {ContactCTA, statusList} from '@/components/sections';
 import {getContent} from '@/lib/content-store';
 import {pageMeta} from '@/lib/metadata';
 import {telLink, whatsappLink} from '@/lib/whatsapp';
@@ -19,7 +19,7 @@ export default async function Project({params}:{params:Promise<{slug:string}>}){
       <div className="project-layout">
         <div className="project-media">{p.image&&<Gallery src={p.image} alt={p.name} additionalImages={p.additionalImages}/>}</div>
         <aside className="project-facts">
-          {p.status&&<span className="status-badge status-badge-inline">{p.status}</span>}
+          {p.status&&<span className="status-badges status-badges-inline">{statusList(p.status).map((item,i)=><span className={`status-badge${i?' status-badge-alt':''}`} key={item}>{item}</span>)}</span>}
           <span className="spec">{p.type} · {p.scope}</span>
           <h1>{p.name}</h1>
           <p className="project-location">{p.location}</p>
@@ -27,7 +27,9 @@ export default async function Project({params}:{params:Promise<{slug:string}>}){
             <div><dt>Location</dt><dd>{p.location}</dd></div>
             <div><dt>Project type</dt><dd>{p.scope}</dd></div>
             <div><dt>Configuration</dt><dd>{p.configuration}</dd></div>
+            {p.status&&<div><dt>Status</dt><dd>{statusList(p.status).join(', ')}</dd></div>}
           </dl>
+          {p.highlights.length>0&&<ul className="highlights highlights-dark">{p.highlights.map(item=><li key={item}><Check size={16} aria-hidden="true"/>{item}</li>)}</ul>}
           <a className="button button-block" href={whatsappLink(message, content.company.whatsapp)} target="_blank" rel="noopener noreferrer"><MessageCircle size={19} aria-hidden="true"/>{p.status?'Book a site visit':'Ask about this project'}</a>
           <a className="button button-ghost-dark button-block" href={telLink(content.company.phone)}><Phone size={18} aria-hidden="true"/>{content.company.phone}</a>
           <p className="fine-print">{content.projectsPage.note}</p>

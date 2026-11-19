@@ -11,7 +11,7 @@ import { Rich } from '@/components/rich';
 
 type Company = SiteContent['company'];
 
-const links = [['Projects', '/projects'], ['About', '/about'], ['Services', '/services'], ['Approach', '/process'], ['Contact', '/contact']];
+const links = [['Projects', '/projects'], ['About', '/about'], ['Services', '/services'], ['Joint ventures', '/joint-ventures'], ['Approach', '/process'], ['Contact', '/contact']];
 
 export function Navigation({ company }: { company: Company }) {
   const [open, setOpen] = useState(false);
@@ -44,7 +44,7 @@ export function Footer({ company }: { company: Company }) {
       </div>
       <div>
         <span className="label">Explore</span>
-        <ul><li><Link href="/projects">Projects</Link></li><li><Link href="/about">About</Link></li><li><Link href="/services">Services</Link></li><li><Link href="/process">Approach</Link></li></ul>
+        <ul><li><Link href="/projects">Projects</Link></li><li><Link href="/about">About</Link></li><li><Link href="/services">Services</Link></li><li><Link href="/joint-ventures">Joint ventures</Link></li><li><Link href="/process">Approach</Link></li></ul>
       </div>
       <div>
         <span className="label">Contact</span>

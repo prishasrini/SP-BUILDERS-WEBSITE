@@ -119,10 +119,15 @@ function ProjectForm({ project, onChange, onDone, others, onError }: { project: 
       <Field label="Project scope" value={project.scope} onChange={scope => set({ scope })} placeholder="Joint venture / Individual villa" />
       <Field label="Location" value={project.location} onChange={location => set({ location })} placeholder="3rd Street, Poombuhar Nagar" />
       <Field label="Configuration" value={project.configuration} onChange={configuration => set({ configuration })} placeholder="Stilt + 2 floors · 4 residences" />
-      <Field label="Status badge (optional)" value={project.status} onChange={status => set({ status })} placeholder="Now selling / Upcoming / Completed" hint="Shown as a badge on the project. Leave empty for past projects." />
+      <Field label="Status badge (optional)" value={project.status} onChange={status => set({ status })} placeholder="Now selling · Under construction" hint="Shown as badges on the project. Separate several with · or a comma. Leave empty for past projects." />
     </div>
     <div className="admin-grid">
       <Field label="Description" value={project.description} multiline onChange={description => set({ description })} />
+      <div className="admin-field"><span>Highlights</span>
+        <ListEditor items={project.highlights} onChange={highlights => set({ highlights })} label="Highlight" create={() => ''} render={(item, update) =>
+          <Field label="Highlight" value={item} placeholder="Nearby metro" onChange={update} />} />
+        <small>Short features shown as ticks, for example Nearby metro or Covered car parking.</small>
+      </div>
       <label className="admin-check"><input type="checkbox" checked={project.featured} onChange={e => set({ featured: e.target.checked })} /> Show on the home page (the first 3 featured projects appear there)</label>
       <ImageInput label="Main photo" value={project.image} name={project.slug} onChange={image => set({ image })} onError={onError} />
       <div className="admin-field"><span>More photos</span>
@@ -142,7 +147,7 @@ function ProjectsTab({ content, setContent, onError }: { content: SiteContent; s
   }
   const move = (from: number, to: number) => setContent(c => { const [p] = c.projects.splice(from, 1); c.projects.splice(to, 0, p); });
   const add = () => {
-    setContent(c => { c.projects.unshift({ slug: '', name: '', location: '', type: 'Apartments', scope: '', configuration: '', image: '', additionalImages: [], description: '', featured: false, status: '' }); });
+    setContent(c => { c.projects.unshift({ slug: '', name: '', location: '', type: 'Apartments', scope: '', configuration: '', image: '', additionalImages: [], description: '', featured: false, status: '', highlights: [] }); });
     setEditing(0);
   };
   return <div>
@@ -223,6 +228,16 @@ export function Editor({ initial, history: initialHistory, storage }: { initial:
             <Field label="Label" value={stat.label} placeholder="Years building" onChange={label => update({ ...stat, label })} />
           </>} />
         </Section>
+        <Section title="Now selling band" description="Appears right after the building animation, for the first project whose status says Now selling.">
+          <Field label="Small label" value={h.spotlightLabel} onChange={spotlightLabel => setHome({ spotlightLabel })} />
+          <Field label="Button text" value={h.spotlightButton} onChange={spotlightButton => setHome({ spotlightButton })} />
+        </Section>
+        <Section title="Why SP Builders">
+          <Field label="Small label" value={h.whyLabel} onChange={whyLabel => setHome({ whyLabel })} />
+          <Field label="Heading" value={h.whyHeading} hint={accentHint} onChange={whyHeading => setHome({ whyHeading })} />
+          <Field label="Intro" value={h.whyIntro} multiline onChange={whyIntro => setHome({ whyIntro })} />
+          <TitleTextList items={h.why} label="Reason" onChange={why => setHome({ why })} />
+        </Section>
         <Section title="Selected work heading">
           <Field label="Small label" value={h.projectsLabel} onChange={projectsLabel => setHome({ projectsLabel })} />
           <Field label="Heading" value={h.projectsHeading} hint={accentHint} onChange={projectsHeading => setHome({ projectsHeading })} />
@@ -279,6 +294,12 @@ export function Editor({ initial, history: initialHistory, storage }: { initial:
           <Field label="Founder paragraph" value={content.about.founderText} multiline onChange={v => setContent(c => { c.about.founderText = v; })} />
           <Field label="Second paragraph" value={content.about.founderText2} multiline onChange={v => setContent(c => { c.about.founderText2 = v; })} />
           <TitleTextList items={content.about.values} label="Value" onChange={values => setContent(c => { c.about.values = values; })} />
+          <Field label="Founder name" value={content.about.founderName} onChange={v => setContent(c => { c.about.founderName = v; })} />
+          <Field label="Founder role" value={content.about.founderRole} onChange={v => setContent(c => { c.about.founderRole = v; })} />
+          <Field label="Founder bio" value={content.about.founderBio} multiline onChange={v => setContent(c => { c.about.founderBio = v; })} />
+          <Field label="Philosophy label" value={content.about.philosophyLabel} onChange={v => setContent(c => { c.about.philosophyLabel = v; })} />
+          <Field label="Philosophy" value={content.about.philosophy} multiline onChange={v => setContent(c => { c.about.philosophy = v; })} />
+          <Field label="Motto" value={content.about.motto} hint={accentHint} onChange={v => setContent(c => { c.about.motto = v; })} />
         </Section>
         <Section title="Services page">
           <Field label="Heading" value={content.servicesPage.heading} hint={accentHint} onChange={v => setContent(c => { c.servicesPage.heading = v; })} />
@@ -294,6 +315,23 @@ export function Editor({ initial, history: initialHistory, storage }: { initial:
               <Field label="Link text" value={item.linkText} onChange={linkText => update({ ...item, linkText })} />
               <Field label="Link to" value={item.link} hint="A page on the site, like /contact" onChange={link => update({ ...item, link })} />
             </>} />
+        </Section>
+        <Section title="Joint ventures page">
+          <Field label="Heading" value={content.jvPage.heading} hint={accentHint} onChange={v => setContent(c => { c.jvPage.heading = v; })} />
+          <Field label="Intro" value={content.jvPage.intro} multiline onChange={v => setContent(c => { c.jvPage.intro = v; })} />
+          <Field label="Button text" value={content.jvPage.ctaLabel} onChange={v => setContent(c => { c.jvPage.ctaLabel = v; })} />
+          <Field label="WhatsApp starting message" value={content.jvPage.message} multiline onChange={v => setContent(c => { c.jvPage.message = v; })} />
+          <Field label="Steps heading" value={content.jvPage.stepsHeading} hint={accentHint} onChange={v => setContent(c => { c.jvPage.stepsHeading = v; })} />
+          <TitleTextList items={content.jvPage.steps} label="Step" onChange={steps => setContent(c => { c.jvPage.steps = steps; })} />
+          <Field label="Why partner heading" value={content.jvPage.whyHeading} hint={accentHint} onChange={v => setContent(c => { c.jvPage.whyHeading = v; })} />
+          <TitleTextList items={content.jvPage.why} label="Reason" onChange={why => setContent(c => { c.jvPage.why = why; })} />
+          <Field label="Checklist heading" value={content.jvPage.bringHeading} hint={accentHint} onChange={v => setContent(c => { c.jvPage.bringHeading = v; })} />
+          <ListEditor items={content.jvPage.bring} label="Checklist item" onChange={bring => setContent(c => { c.jvPage.bring = bring; })} create={() => ''} render={(item, update) => <Field label="Item" value={item} onChange={update} />} />
+          <Field label="Questions heading" value={content.jvPage.faqHeading} hint={accentHint} onChange={v => setContent(c => { c.jvPage.faqHeading = v; })} />
+          <ListEditor items={content.jvPage.faq} label="Question" onChange={faq => setContent(c => { c.jvPage.faq = faq; })} create={() => ({ question: '', answer: '' })} render={(item, update) => <>
+            <Field label="Question" value={item.question} onChange={question => update({ ...item, question })} />
+            <Field label="Answer" value={item.answer} multiline onChange={answer => update({ ...item, answer })} />
+          </>} />
         </Section>
         <Section title="Approach page">
           <Field label="Heading" value={content.approachPage.heading} hint={accentHint} onChange={v => setContent(c => { c.approachPage.heading = v; })} />

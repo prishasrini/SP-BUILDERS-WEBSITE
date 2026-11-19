@@ -61,3 +61,20 @@ export function ProjectQuestions({content}:{content:SiteContent}) {
     <div className="faq-list">{content.faq.map((item,index)=><details key={item.question+index}><summary>{item.question}<span aria-hidden="true" className="faq-icon" /></summary><p>{item.answer}</p></details>)}</div>
   </div></section>;
 }
+
+export function Founder({content}:{content:SiteContent}) {
+  const about = content.about;
+  const initials = about.founderName.replace(/[^A-Za-z ]/g,'').split(' ').filter(Boolean).map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  return <section className="band band-stone" aria-labelledby="founder-title"><div className="section founder">
+    <div className="founder-card">
+      <span className="founder-mark" aria-hidden="true">{initials}</span>
+      <div><h2 id="founder-title">{about.founderName}</h2><span className="spec">{about.founderRole}</span></div>
+      <p>{about.founderBio}</p>
+    </div>
+    <figure className="philosophy">
+      <span className="label">{about.philosophyLabel}</span>
+      <blockquote><p>{about.philosophy}</p></blockquote>
+      {about.motto && <figcaption><Rich text={about.motto}/></figcaption>}
+    </figure>
+  </div></section>;
+}
