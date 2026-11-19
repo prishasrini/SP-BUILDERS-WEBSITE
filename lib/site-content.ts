@@ -59,7 +59,7 @@ export const defaultContent: SiteContent = {
     email: company.email,
     address: company.address,
     // What Google Maps searches for. Coordinates (e.g. 13.1211, 80.2134) give an exact pin.
-    mapLocation: 'Poompuhar Nagar, Kolathur, Chennai, Tamil Nadu 600099',
+    mapLocation: '13.1220818,80.2118144',
     footerText: 'Residential apartments, individual villas and renovations in Chennai. Founded by civil engineer V. Srinivasan in *2000*.',
     visits: 'Please call or message ahead to arrange a meeting.',
   },
