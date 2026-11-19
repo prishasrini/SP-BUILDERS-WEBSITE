@@ -30,6 +30,7 @@ export function ProjectCard({ project, index }: { project: Project; index?: numb
     <div className="project-card-image">
       {project.image && <Image src={project.image} alt={`${project.name}, architectural visualisation`} fill sizes="(max-width: 700px) 92vw, (max-width: 1100px) 46vw, 30vw" />}
       {index !== undefined && <span className="project-card-index">{String(index + 1).padStart(2, '0')}</span>}
+      {project.status && <span className="status-badge">{project.status}</span>}
     </div>
     <div className="project-card-body">
       <span className="spec">{project.type} · {project.scope}</span>

@@ -115,6 +115,9 @@ h2+.section-intro{margin-top:24px}
 .project-card-image img{object-fit:cover;transition:transform .6s}
 .project-card:hover .project-card-image img{transform:scale(1.04)}
 .project-card-index{position:absolute;left:14px;top:14px;font-family:var(--mono-font);font-size:12px;background:#16191ccc;color:#fff;padding:5px 9px;border-radius:6px}
+.status-badge{position:absolute;left:14px;bottom:14px;display:inline-flex;align-items:center;gap:7px;font-family:var(--mono-font);font-size:12px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;background:var(--brick);color:#fff;padding:6px 10px;border-radius:6px}
+.status-badge::before{content:"";width:7px;height:7px;border-radius:50%;background:#fff;box-shadow:0 0 0 3px #ffffff40}
+.status-badge-inline{position:static;margin-bottom:14px}
 .project-card-body{position:relative;padding:22px 22px 24px}
 .project-card-body h3{margin:10px 56px 6px 0}
 .project-card-body p{font-size:15px;color:var(--ink-2)}

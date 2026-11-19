@@ -6,7 +6,7 @@ import {telLink, whatsappLink} from '@/lib/whatsapp';
 export const metadata=pageMeta('Contact','Contact SP Builders in Kolathur, Chennai on WhatsApp, phone or email to discuss apartments, villas or construction.','/contact');
 export default async function Contact(){
   const content=await getContent();const company=content.company;const page=content.contactPage;
-  const mapQuery=encodeURIComponent(company.address);
+  const mapQuery=encodeURIComponent(company.mapLocation || company.address);
   return <main id="main">
   <section className="page-hero"><div className="section"><span className="label">Contact</span><h1><Rich text={page.heading}/></h1><p>{page.intro}</p></div></section>
   <section className="section contact">

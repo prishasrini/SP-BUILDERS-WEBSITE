@@ -119,6 +119,7 @@ function ProjectForm({ project, onChange, onDone, others, onError }: { project: 
       <Field label="Project scope" value={project.scope} onChange={scope => set({ scope })} placeholder="Joint venture / Individual villa" />
       <Field label="Location" value={project.location} onChange={location => set({ location })} placeholder="3rd Street, Poombuhar Nagar" />
       <Field label="Configuration" value={project.configuration} onChange={configuration => set({ configuration })} placeholder="Stilt + 2 floors · 4 residences" />
+      <Field label="Status badge (optional)" value={project.status} onChange={status => set({ status })} placeholder="Now selling / Upcoming / Completed" hint="Shown as a badge on the project. Leave empty for past projects." />
     </div>
     <div className="admin-grid">
       <Field label="Description" value={project.description} multiline onChange={description => set({ description })} />
@@ -141,7 +142,7 @@ function ProjectsTab({ content, setContent, onError }: { content: SiteContent; s
   }
   const move = (from: number, to: number) => setContent(c => { const [p] = c.projects.splice(from, 1); c.projects.splice(to, 0, p); });
   const add = () => {
-    setContent(c => { c.projects.unshift({ slug: '', name: '', location: '', type: 'Apartments', scope: '', configuration: '', image: '', additionalImages: [], description: '', featured: false }); });
+    setContent(c => { c.projects.unshift({ slug: '', name: '', location: '', type: 'Apartments', scope: '', configuration: '', image: '', additionalImages: [], description: '', featured: false, status: '' }); });
     setEditing(0);
   };
   return <div>
@@ -149,7 +150,7 @@ function ProjectsTab({ content, setContent, onError }: { content: SiteContent; s
     <ul className="admin-projects">{projects.map((project, index) => <li key={project.slug + index}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       {project.image ? <img src={project.image} alt="" /> : <div className="admin-image-empty">No photo</div>}
-      <div className="admin-project-info"><strong>{project.name || 'Untitled project'}</strong><span>{project.type} · {project.location || 'No location'}</span></div>
+      <div className="admin-project-info"><strong>{project.name || 'Untitled project'}</strong><span>{project.status ? `${project.status} · ` : ''}{project.type} · {project.location || 'No location'}</span></div>
       <div className="admin-icon-row">
         <button type="button" className={`admin-icon ${project.featured ? 'admin-star-on' : ''}`} aria-pressed={project.featured} aria-label={project.featured ? 'Remove from home page' : 'Show on home page'} title={project.featured ? 'Shown on home page' : 'Show on home page'} onClick={() => setContent(c => { c.projects[index].featured = !c.projects[index].featured; })}><Star size={17} /></button>
         <button type="button" className="admin-icon" aria-label="Move up" disabled={index === 0} onClick={() => move(index, index - 1)}><ArrowUp size={16} /></button>
@@ -315,6 +316,7 @@ export function Editor({ initial, history: initialHistory, storage }: { initial:
         <Field label="WhatsApp number" value={content.company.whatsapp} hint="Country code and number, digits only. Example: 919841145873" onChange={v => setContent(c => { c.company.whatsapp = v.replace(/\D/g, ''); })} />
         <Field label="Email" value={content.company.email} onChange={v => setContent(c => { c.company.email = v; })} />
         <Field label="Office address" value={content.company.address} multiline onChange={v => setContent(c => { c.company.address = v; })} />
+        <Field label="Map location" value={content.company.mapLocation} hint="What the map on the Contact page points to. For an exact pin, open Google Maps, long-press or right-click the office, copy the numbers shown (like 13.1211, 80.2134) and paste them here." onChange={v => setContent(c => { c.company.mapLocation = v; })} />
         <Field label="Visits note" value={content.company.visits} onChange={v => setContent(c => { c.company.visits = v; })} />
         <Field label="Footer text" value={content.company.footerText} multiline hint={accentHint} onChange={v => setContent(c => { c.company.footerText = v; })} />
       </Section>}

@@ -15,12 +15,13 @@ export type Project = {
   additionalImages: string[];
   description: string;
   featured: boolean;
+  status: string;
 };
 
 export type TitleText = { title: string; text: string };
 
 export type SiteContent = {
-  company: { phone: string; whatsapp: string; email: string; address: string; footerText: string; visits: string };
+  company: { phone: string; whatsapp: string; email: string; address: string; mapLocation: string; footerText: string; visits: string };
   home: {
     storyLabel: string; storyHeading: string; storyLead: string; storyText: string;
     stats: { label: string; value: string }[];
@@ -57,6 +58,8 @@ export const defaultContent: SiteContent = {
     whatsapp: '919841145873',
     email: company.email,
     address: company.address,
+    // What Google Maps searches for. Coordinates (e.g. 13.1211, 80.2134) give an exact pin.
+    mapLocation: 'Poompuhar Nagar, Kolathur, Chennai, Tamil Nadu 600099',
     footerText: 'Residential apartments, individual villas and renovations in Chennai. Founded by civil engineer V. Srinivasan in *2000*.',
     visits: 'Please call or message ahead to arrange a meeting.',
   },
@@ -156,7 +159,7 @@ export const defaultContent: SiteContent = {
   projects: defaultProjects.map(p => ({
     slug: p.slug, name: p.name, location: p.location, type: p.type === 'Villas' ? 'Villas' : 'Apartments', scope: p.scope,
     configuration: p.configuration, image: p.image, additionalImages: p.additionalImages ?? [], description: p.description,
-    featured: ['third-street-apartments', 'vetrivel-nagar-villa', 'first-main-road-residence'].includes(p.slug),
+    featured: ['jn-enclave', 'third-street-apartments', 'vetrivel-nagar-villa'].includes(p.slug), status: p.status ?? '',
   })),
 };
 

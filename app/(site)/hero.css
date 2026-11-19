@@ -201,10 +201,17 @@
  .construction-film .scene-media video,.construction-film .scene-poster,.construction-film .scene-media .scene-canvas{object-fit:contain;object-position:center}
 }
 
-/* Phones: portrait crop of the film fills the space between the headline and the controls. */
+/* Phones: the film fills the screen and the headline sits low, over the driveway. */
 @media(max-width:650px) and (orientation:portrait){
- .construction-frames.mobile-fill .scene-media .scene-canvas,.construction-frames.mobile-fill .scene-poster{object-fit:cover;object-position:center 55%;top:140px;bottom:61px;height:calc(100% - 201px)}
- .construction-frames.mobile-fill .scene-shade{background:linear-gradient(180deg,#11171a 0%,#11171a 130px,transparent 210px,transparent 72%,#11171a99 100%)}
+ .construction-frames.mobile-fill .scene-media .scene-canvas,.construction-frames.mobile-fill .scene-poster{object-fit:cover;object-position:center;top:0;bottom:61px;height:calc(100% - 61px);transform:none!important}
+ .construction-frames.mobile-fill .scene-shade{background:linear-gradient(180deg,#11171a66 0%,transparent 16%,transparent 50%,#11171ae0 84%,#11171a 100%)}
+ .construction-frames.mobile-fill .scene-copy{top:auto;bottom:118px}
+ .construction-frames.mobile-fill .scene-stage{top:18px;bottom:auto;left:auto;right:18px}
+}
+/* Very tall phones: keep the whole building in view; the sky blends into the dark top. */
+@media(max-width:650px) and (orientation:portrait) and (max-aspect-ratio:5/8){
+ .construction-frames.mobile-fill .scene-media .scene-canvas,.construction-frames.mobile-fill .scene-poster{top:auto;height:min(calc(100% - 61px),calc(100vw / .6))}
+ .construction-frames.mobile-fill .scene-media{background:linear-gradient(180deg,#2a2f3a,#11171a 40%)}
 }
 /* Phones: drop the side labels (too narrow to read) and keep a slim progress line instead,
    so the film and headline use the full width. */
@@ -215,4 +222,5 @@
  .construction-frames .scene-copy{left:22px;right:22px}
  .construction-frames .scene-stage{left:22px}
  .construction-frames .scene-media{left:0}
+ .construction-frames .scene-shade{left:0}
 }

@@ -23,7 +23,7 @@ function normalise(content: SiteContent): SiteContent {
     projects: content.projects.map((p: Partial<Project>) => ({
       slug: p.slug ?? '', name: p.name ?? '', location: p.location ?? '', type: p.type === 'Villas' ? 'Villas' : 'Apartments',
       scope: p.scope ?? '', configuration: p.configuration ?? '', image: p.image ?? '', additionalImages: p.additionalImages ?? [],
-      description: p.description ?? '', featured: !!p.featured,
+      description: p.description ?? '', featured: !!p.featured, status: p.status ?? '',
     })),
   };
 }

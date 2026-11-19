@@ -12,13 +12,14 @@ export default async function Project({params}:{params:Promise<{slug:string}>}){
   const {slug}=await params;const content=await getContent();const projects=content.projects;
   const p=projects.find(p=>p.slug===slug);if(!p)notFound();
   const next=projects[(projects.indexOf(p)+1)%projects.length];
-  const message=`Hi SP Builders, I'm interested in ${p.name}${p.location&&!p.location.startsWith('Location')?` (${p.location})`:''}. Could you share more details?`;
+  const message=p.status?`Hi SP Builders, I'm interested in ${p.name}. I'd like to book a site visit and know more about the homes.`:`Hi SP Builders, I'm interested in ${p.name}${p.location&&!p.location.startsWith('Location')?` (${p.location})`:''}. Could you share more details?`;
   return <main id="main">
     <section className="section project-page">
       <Link className="back-link" href="/projects"><ArrowLeft size={16} aria-hidden="true"/>All projects</Link>
       <div className="project-layout">
         <div className="project-media">{p.image&&<Gallery src={p.image} alt={p.name} additionalImages={p.additionalImages}/>}</div>
         <aside className="project-facts">
+          {p.status&&<span className="status-badge status-badge-inline">{p.status}</span>}
           <span className="spec">{p.type} · {p.scope}</span>
           <h1>{p.name}</h1>
           <p className="project-location">{p.location}</p>
@@ -27,7 +28,7 @@ export default async function Project({params}:{params:Promise<{slug:string}>}){
             <div><dt>Project type</dt><dd>{p.scope}</dd></div>
             <div><dt>Configuration</dt><dd>{p.configuration}</dd></div>
           </dl>
-          <a className="button button-block" href={whatsappLink(message, content.company.whatsapp)} target="_blank" rel="noopener noreferrer"><MessageCircle size={19} aria-hidden="true"/>Ask about this project</a>
+          <a className="button button-block" href={whatsappLink(message, content.company.whatsapp)} target="_blank" rel="noopener noreferrer"><MessageCircle size={19} aria-hidden="true"/>{p.status?'Book a site visit':'Ask about this project'}</a>
           <a className="button button-ghost-dark button-block" href={telLink(content.company.phone)}><Phone size={18} aria-hidden="true"/>{content.company.phone}</a>
           <p className="fine-print">{content.projectsPage.note}</p>
         </aside>
